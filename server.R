@@ -3,7 +3,6 @@
 shinyServer(function(input, output, session) {
   
   useShinyjs(html = TRUE)
-  hide(id = "emailing-content")
   
   parameters <- reactiveValues()
   
@@ -50,21 +49,24 @@ shinyServer(function(input, output, session) {
       return(NULL)
     # Use isolate() to avoid dependency on input$email.button
     isolate({
-      show(id = "emailing-content")
+      show(id = "loading-content")
       # validate(
       #   need(try(emailMyDocument(parameters=parameters, email.address=input$email)),
       #        'Error sending email, please try again.')
       # )
-      tryCatch(emailMyDocument(parameters=reactiveValuesToList(parameters), email.address=input$email),
+      tryCatch(emailMyDocument(parameters=reactiveValuesToList(parameters), email.address=input$email,
+                               session=session)
+               ,
                error=function(e) {
                  print("Email unsuccessful")
                  session$sendCustomMessage(type = 'testmessage',
                                            message = 'Error sending email, please try again.')
                  },
-               finally = {hide(id = "emailing-content")}
+               finally = {hide(id = "loading-content")}
                )
       
-      logEvent(session=session, url.parameters=reactiveValuesToList(parameters), event.variables=list(event="email",notes=input$email))
+      logEvent(session=session, url.parameters=reactiveValuesToList(parameters), 
+               event.variables=list(event="email",notes=input$email))
     })
   })
 

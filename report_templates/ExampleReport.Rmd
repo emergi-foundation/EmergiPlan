@@ -34,7 +34,7 @@ color-warning: 8F5A03
 color-annotation: 8F5A03
 header-includes:
 - \lhead{This is fancy}
-- \rhead{\raisebox{-.5\height}[0pt][0pt]{\includegraphics[height=1.5cm]{LFP_vertical_tagline.png}}}
+- \rhead{\raisebox{-.5\height}[0pt][0pt]{\includegraphics[height=1.5cm]{www/LFP_vertical_tagline.png}}}
 - \cfoot{\thepage}
 lastpage-data:
 - learningforpurpose.org

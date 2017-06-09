@@ -81,6 +81,9 @@ renderMyDocument <- function(variables, mdType,
     tempTemplate <- file.path(tempdir(), template.file)
     file.copy(template.name, tempTemplate, overwrite = TRUE)
     logo.name <- "www/LFP_vertical_tagline.png"
+    if(!dir.exists(file.path(tempdir(),'www'))){
+      dir.create(file.path(tempdir(),'www'))
+    }
     tempLogo <- file.path(tempdir(), logo.name)
     file.copy(logo.name, tempLogo, overwrite = TRUE)
     
@@ -129,8 +132,10 @@ emailReport <- function(email.params){
             )
 }
 
-emailMyDocument <- function(parameters, email.address){
+emailMyDocument <- function(parameters, email.address, session){
   out <- renderMyDocument(variables=parameters, mdType = "PDF")
   email.params <- list(to=email.address, report=out)
   emailReport(email.params)
+  session$sendCustomMessage(type = 'testmessage',
+                            message = 'Your report has been emailed to you!')
 }
