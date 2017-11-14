@@ -18,3 +18,4 @@ p, table  { margin: 0 0 15px;}
 .left-navbar ul { list-style-type: none; -webkit-padding-start: 0px; line-height: 1.8;}
 .left-navbar p { margin: 30px 0px; }
 .main-content { line-height: 1.8;}
+ .extra { color: lightgrey; font-size: 12px; }

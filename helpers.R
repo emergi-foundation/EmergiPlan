@@ -81,9 +81,6 @@ renderMyDocument <- function(variables, mdType,
     tempTemplate <- file.path(tempdir(), template.file)
     file.copy(template.name, tempTemplate, overwrite = TRUE)
     logo.name <- "www/LFP_vertical_tagline.png"
-    if(!dir.exists(file.path(tempdir(),'www'))){
-      dir.create(file.path(tempdir(),'www'))
-    }
     tempLogo <- file.path(tempdir(), logo.name)
     file.copy(logo.name, tempLogo, overwrite = TRUE)
     
@@ -117,25 +114,23 @@ renderMyDocument <- function(variables, mdType,
 }
 
 emailReport <- function(email.params){
-  send.mail(from = paste0(app.settings$email.username,"@gmail.com"),
+  send.mail(from = app.settings$email.username, #paste0(app.settings$email.username,"@gmail.com"),
             to = email.params$to,
-            subject <- "Survey Report",
-            body <- "Please see attached for a copy of your survey report.",
+            subject <- "Your Personal Survey Report from the Australian Not-for-profit Workforce Study",
+            body <- "Thank you for participating in the Australian Not-for-profit Workforce Study. Please see attached for a copy of your personal survey report.",
             smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = app.settings$email.username, passwd = app.settings$email.password, ssl = TRUE),
             authenticate = TRUE,
             html = TRUE,
             send = TRUE,
             attach.files = c(email.params$report),
             file.names = c("Survey_Report.pdf"), # optional parameter
-            file.descriptions = c("Your Survey Report"), # optional parameter
+            file.descriptions = c("Your Personal Survey Report"), # optional parameter
             debug = TRUE
             )
 }
 
-emailMyDocument <- function(parameters, email.address, session){
+emailMyDocument <- function(parameters, email.address){
   out <- renderMyDocument(variables=parameters, mdType = "PDF")
   email.params <- list(to=email.address, report=out)
   emailReport(email.params)
-  session$sendCustomMessage(type = 'testmessage',
-                            message = 'Your report has been emailed to you!')
 }
