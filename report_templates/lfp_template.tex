@@ -5,6 +5,7 @@
 
 % Setting page layout, margin 1in
 \usepackage[margin=1in]{geometry}
+% \geometry{footskip=30pt,textheight=550pt}
 
 % Xcolor package for color definitions
 \usepackage[dvipsnames]{xcolor}
@@ -33,6 +34,7 @@
 \definecolor{White}{HTML}{FFFFFF}
 \definecolor{Black}{HTML}{000000}
 \definecolor{GreyMisc}{HTML}{CCCCCC}
+\definecolor{GreyMisc2}{HTML}{818181}
 \definecolor{BodyColor}{HTML}{2C3D50}
 
 % Loading the font
@@ -94,35 +96,35 @@ $highlighting-macros$
 $endif$
 
 % Adding Yaml defined colors
-\definecolor{color-shade}{HTML}{$if(color-shade)$$color-shade$$endif$}
-\colorlet{shadecolor}{color-shade}
-\renewcommand{\KeywordTok}[1]{\textcolor[HTML]{$if(color-keyword)$$color-keyword$$endif$}{\textbf{{#1}}}}
-\renewcommand{\DataTypeTok}[1]{\textcolor[HTML]{$if(color-datatype)$$color-datatype$$endif$}{{#1}}}
-\renewcommand{\DecValTok}[1]{\textcolor[HTML]{$if(color-decval)$$color-decval$$endif$}{{#1}}}
-\renewcommand{\BaseNTok}[1]{\textcolor[HTML]{$if(color-basen)$$color-basen$$endif$}{{#1}}}
-\renewcommand{\ConstantTok}[1]{\textcolor[HTML]{$if(color-constant)$$color-constant$$endif$}{{#1}}}
-\renewcommand{\FloatTok}[1]{\textcolor[HTML]{$if(color-float)$$color-float$$endif$}{{#1}}}
-\renewcommand{\CharTok}[1]{\textcolor[HTML]{$if(color-char)$$color-char$$endif$}{{#1}}}
-\renewcommand{\SpecialCharTok}[1]{\textcolor[HTML]{$if(color-specialchar)$$color-specialchar$$endif$}{{#1}}}
-\renewcommand{\StringTok}[1]{\textcolor[HTML]{$if(color-string)$$color-string$$endif$}{{#1}}}
-\renewcommand{\VerbatimStringTok}[1]{\textcolor[HTML]{$if(color-verbatimstring)$$color-verbatimstring$$endif$}{{#1}}}
-\renewcommand{\SpecialStringTok}[1]{\textcolor[HTMK]{$if(color-specialstring)$$color-specialstring$$endif$}{{#1}}}
-\renewcommand{\CommentTok}[1]{\textcolor[HTML]{$if(color-comment)$$color-comment$$endif$}{\textit{{#1}}}}
-\renewcommand{\DocumentationTok}[1]{\textcolor[HTML]{$if(color-documentation)$$color-documentation$$endif$}{\textbf{\textit{{#1}}}}}
-\renewcommand{\AnnotationTok}[1]{\textcolor[HTML]{$if(color-annotation)$$color-annotation$$endif$}{\textbf{\textit{{#1}}}}}
-\renewcommand{\CommentVarTok}[1]{\textcolor[HTML]{$if(color-commentvar)$$color-commentvar$$endif$}{\textbf{\textit{{#1}}}}}
-\renewcommand{\OtherTok}[1]{\textcolor[HTML]{$if(color-other)$$color-other$$endif$}{{#1}}}
-\renewcommand{\VariableTok}[1]{\textcolor[HTML]{$if(color-variable)$$color-variable$$endif$}{{#1}}}
-\renewcommand{\ControlFlowTok}[1]{\textcolor[HTMK]{$if(color-controlflow)$$color-controlflow$$endif$}{\textbf{{#1}}}}
-\renewcommand{\OperatorTok}[1]{\textcolor[HTML]{$if(color-operator)$$color-operator$$endif$}{\textbf{{#1}}}}
-\renewcommand{\AlertTok}[1]{\textcolor[HTML]{$if(color-alert)$$color-alert$$endif$}{\textbf{{#1}}}}
-\renewcommand{\FunctionTok}[1]{\textcolor[HTML]{$if(color-function)$$color-function$$endif$}{{#1}}}
-\renewcommand{\PreprocessorTok}[1]{\textcolor[HTML]{$if(color-preprocessor)$$color-preprocessor$$endif$}{\textit{{#1}}}}
-\renewcommand{\AttributeTok}[1]{\textcolor[HTML]{$if(color-attribute)$$color-attribute$$endif$}{{#1}}}
-\renewcommand{\InformationTok}[1]{\textcolor[HTML]{$if(color-information)$$color-information$$endif$}{\textbf{\textit{{#1}}}}}
-\renewcommand{\WarningTok}[1]{\textcolor[HTML]{$if(color-warning)$$color-warning$$endif$}{\textbf{\textit{{#1}}}}}
-\renewcommand{\AlertTok}[1]{\textcolor[HTML]{$if(color-alert)$$color-alert$$endif$}{{#1}}}
-\renewcommand{\ErrorTok}[1]{\textcolor[HTML]{$if(color-error)$$color-comment$$endif$}{\textbf{{#1}}}}
+ \definecolor{color-shade}{HTML}{$if(color-shade)$$color-shade$$endif$}
+ \colorlet{shadecolor}{color-shade}
+%  \renewcommand{\KeywordTok}[1]{\textcolor[HTML]{$if(color-keyword)$$color-keyword$$endif$}{\textbf{{#1}}}}
+%  \renewcommand{\DataTypeTok}[1]{\textcolor[HTML]{$if(color-datatype)$$color-datatype$$endif$}{{#1}}}
+%  \renewcommand{\DecValTok}[1]{\textcolor[HTML]{$if(color-decval)$$color-decval$$endif$}{{#1}}}
+%  \renewcommand{\BaseNTok}[1]{\textcolor[HTML]{$if(color-basen)$$color-basen$$endif$}{{#1}}}
+%  \renewcommand{\ConstantTok}[1]{\textcolor[HTML]{$if(color-constant)$$color-constant$$endif$}{{#1}}}
+%  \renewcommand{\FloatTok}[1]{\textcolor[HTML]{$if(color-float)$$color-float$$endif$}{{#1}}}
+%  \renewcommand{\CharTok}[1]{\textcolor[HTML]{$if(color-char)$$color-char$$endif$}{{#1}}}
+%  \renewcommand{\SpecialCharTok}[1]{\textcolor[HTML]{$if(color-specialchar)$$color-specialchar$$endif$}{{#1}}}
+%  \renewcommand{\StringTok}[1]{\textcolor[HTML]{$if(color-string)$$color-string$$endif$}{{#1}}}
+%  \renewcommand{\VerbatimStringTok}[1]{\textcolor[HTML]{$if(color-verbatimstring)$$color-verbatimstring$$endif$}{{#1}}}
+%  \renewcommand{\SpecialStringTok}[1]{\textcolor[HTMK]{$if(color-specialstring)$$color-specialstring$$endif$}{{#1}}}
+%  \renewcommand{\CommentTok}[1]{\textcolor[HTML]{$if(color-comment)$$color-comment$$endif$}{\textit{{#1}}}}
+%  \renewcommand{\DocumentationTok}[1]{\textcolor[HTML]{$if(color-documentation)$$color-documentation$$endif$}{\textbf{\textit{{#1}}}}}
+%  \renewcommand{\AnnotationTok}[1]{\textcolor[HTML]{$if(color-annotation)$$color-annotation$$endif$}{\textbf{\textit{{#1}}}}}
+%  \renewcommand{\CommentVarTok}[1]{\textcolor[HTML]{$if(color-commentvar)$$color-commentvar$$endif$}{\textbf{\textit{{#1}}}}}
+%  \renewcommand{\OtherTok}[1]{\textcolor[HTML]{$if(color-other)$$color-other$$endif$}{{#1}}}
+%  \renewcommand{\VariableTok}[1]{\textcolor[HTML]{$if(color-variable)$$color-variable$$endif$}{{#1}}}
+%  \renewcommand{\ControlFlowTok}[1]{\textcolor[HTML]{$if(color-controlflow)$$color-controlflow$$endif$}{\textbf{{#1}}}}
+%  \renewcommand{\OperatorTok}[1]{\textcolor[HTML]{$if(color-operator)$$color-operator$$endif$}{\textbf{{#1}}}}
+%  \renewcommand{\AlertTok}[1]{\textcolor[HTML]{$if(color-alert)$$color-alert$$endif$}{\textbf{{#1}}}}
+%  \renewcommand{\FunctionTok}[1]{\textcolor[HTML]{$if(color-function)$$color-function$$endif$}{{#1}}}
+%  \renewcommand{\PreprocessorTok}[1]{\textcolor[HTML]{$if(color-preprocessor)$$color-preprocessor$$endif$}{\textit{{#1}}}}
+%  \renewcommand{\AttributeTok}[1]{\textcolor[HTML]{$if(color-attribute)$$color-attribute$$endif$}{{#1}}}
+%  \renewcommand{\InformationTok}[1]{\textcolor[HTML]{$if(color-information)$$color-information$$endif$}{\textbf{\textit{{#1}}}}}
+%  \renewcommand{\WarningTok}[1]{\textcolor[HTML]{$if(color-warning)$$color-warning$$endif$}{\textbf{\textit{{#1}}}}}
+%  \renewcommand{\AlertTok}[1]{\textcolor[HTML]{$if(color-alert)$$color-alert$$endif$}{{#1}}}
+%  \renewcommand{\ErrorTok}[1]{\textcolor[HTML]{$if(color-error)$$color-comment$$endif$}{\textbf{{#1}}}}
 
 % Header ad footer, resetting
 \usepackage{fancyhdr}
@@ -144,24 +146,45 @@ $endfor$
 \pagestyle{fancy}
 
 \begin{titlepage}
-	\pagenumbering{alph}
 	\centering
 	
 	{%
-		\fontsize{30pt}{30pt}\selectfont
-		$title$
+	  \fontsize{30pt}{30pt}\selectfont
+	  \addfontfeature{Color=GreyMisc}
+	  Your Personal Report
 	}%
-	
-	\vspace*{2\baselineskip}
-	{\addfontfeature{Color=GreyMisc}\footnotesize Generated by $author$, $date$}
-	
-	\vspace*{5\baselineskip}
-	
-	\includegraphics[width=.75\textwidth]{www/LFP_vertical_tagline.png}
 	
 	\vspace*{\baselineskip}
 	
-	\tableofcontents
+	{%
+	  \addfontfeature{Color=GreyMisc}\fontsize{10pt}{10pt}\selectfont
+	  A FEATURE OF THE AUSTRALIAN NOT-FOR-PROFIT WORKFORCE STUDY
+	}%
+	
+	\vspace*{2\baselineskip}
+	
+	{%
+		\fontsize{20pt}{20pt}\selectfont
+		$title$
+	}%
+	
+	\vspace*{\baselineskip}
+	
+	{\footnotesize provided $date$ by}
+	
+	\vspace*{2\baselineskip}
+	
+	\includegraphics[width=0.75\textwidth]{LFP_vertical_tagline.png}
+	
+	\vfill
+	
+%	\tableofcontents
+  
+  \raggedright
+  {%
+	  \footnotesize \addfontfeature{Color=GreyMisc2}
+	  Learning for Purpose is an independent, non-partisan, national initiative to research and realise capability development in the Australian Not-for-Profit Sector. The initiative is led by the Centre for Social Impact at the University of Western Australia Business School in collaboration with the Not-for-Profit sector, social enterprises, universities, government partners, industry and philanthropists.\newline \newline The Australian Not-for-Profit Workforce Study is designed to be the largest ever independent research study on and for all levels of the Australian Not-for-Profit workforce. More at learningforpurpose.org
+	}%
 	
 	\thispagestyle{empty}
 \end{titlepage}
@@ -172,6 +195,8 @@ $endfor$
 \onehalfspacing
 \raggedright
 
+\newpage
+
 $body$
 
 \clearpage
@@ -179,7 +204,7 @@ $body$
 {
 	\thispagestyle{empty}
 	\centering
-	\includegraphics[width=.75\textwidth]{www/LFP_vertical_tagline.png}
+	\includegraphics[width=0.75\textwidth]{LFP_vertical_tagline.png}
 	\setlength{\parskip}{.5ex}
 	
 	\vfill

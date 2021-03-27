@@ -1,12 +1,17 @@
 ---
-title: "Survey Report"
+title: "INSIGHTS ON YOUR WORK EXPERIENCE"
 author: "learningforpurpose.org"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
-  html_document: default
   pdf_document:
     latex_engine: lualatex
     template: lfp_template.tex
+  html_document:
+    toc: yes
+    toc_depth: 1
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
 color-basen: 40A170
 color-char: 40A170
 color-comment: 8F5A03
@@ -33,24 +38,24 @@ color-verbatimstring: 4F9905
 color-warning: 8F5A03
 color-annotation: 8F5A03
 header-includes:
-- \lhead{This is fancy}
-- \rhead{\raisebox{-.5\height}[0pt][0pt]{\includegraphics[height=1.5cm]{www/LFP_vertical_tagline.png}}}
-- \cfoot{\thepage}
-lastpage-data:
-- learningforpurpose.org
-- Here are the credits
-- Some extra text, if needed
-- '`r format(Sys.Date(), "%d %B %Y")`'
+- \lhead{\footnotesize \addfontfeature{Color=GreyMisc2} INSIGHTS ON YOUR WORK EXPERIENCE\\Your Personal Report\\}
+#- \rhead{\raisebox{-.5\height}[0pt][0pt]{\includegraphics[height=1.5cm]{LFP_vertical_tagline.png}}}
+- \lfoot{\footnotesize \addfontfeature{Color=GreyMisc2} A FEATURE OF THE AUSTRALIAN NOT-FOR-PROFIT WORKFORCE STUDY\\by learningforpurpose.org\\ }
+- \rfoot{\footnotesize \addfontfeature{Color=GreyMisc2} \thepage}
+lastpage-data: learningforpurpose.org
 color-attribute: C4A103
 params:
-  five: 10
-  four: 200
-  one: 1
-  ref.one: NA
-  ref.IQ: NA
+  fatg: 3
+  jobauto: 4
+  jobcompl: 2
+  jobsat: 4
+  jobskvar: 5
+  learndev: 4-2-4-1-5-3-4-3-5-2-3
+  ref.IQ: 1
+  ref.one: 1
+  slp: 7
   survey: ExampleReport
-  three: 15
-  two: 2
+  wrkhr: 38
 color-alert: F02929
 ---
 
@@ -63,6 +68,8 @@ color-alert: F02929
 
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
+library(RColorBrewer)
+library(png)
 set.seed(1)
 # Color palette:
 named.palette <- list(#YellowDark="#F2AF1C",
@@ -85,9 +92,14 @@ lfp.palette <- unlist(named.palette, use.names=FALSE)
 # To use for line and point colors, add
 #  scale_colour_manual(values=lfp.palette)
 
-external.data = mtcars
+# external.data = mtcars
 # external.data = read.csv("mtcars.csv", row.names = "X")
-manual.parameter = 100
+# manual.parameter = 100
+
+# prep theme
+theme = theme_set(theme_minimal())
+theme = theme_update(legend.position="none", legend.title=element_blank(), panel.grid.major.x=element_blank())
+
 
 # http://stackoverflow.com/questions/36351258/turning-off-title-page-in-rmd-using-knitr
 # http://tex.stackexchange.com/questions/139139/adding-headers-and-footers-using-pandoc
@@ -95,75 +107,461 @@ manual.parameter = 100
 # https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf
 ```
 
-# R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-The document has parameters that can be determined by the URL served to the Shiny application. The defaults are defined in each document. The parameter labels must be strings, not numeric values (e.g. "one" is acceptable but "1" is not). Here are the parameters for this document:
-
-Parameter | Value
-------------- | -------------
-ref.one | `r params$ref.one`
-one | `r params$one`
-two | `r params$two`
-three | `r params$three`
-four | `r params$four`
-five | `r params$five`
-manual | `r manual.parameter`
 
 
-You can change these parameters by changing the URL, for instance try to visit: https://ericscheier.shinyapps.io/qualtricsreports/?one=10&two=20&three=30&four=40&five=50
+```{r functions, echo=FALSE, message=FALSE, warning=FALSE}
+# settings
+line.color <- "grey90"
+bars.fill <- "grey"
+bars.color <- "white"
+highlight.fill <- "#ffa726"
+label.fill <- "#ffff9c"
+panel.bg <- "white"
+aspectratio <- 9/16
 
-When you click the download or email buttons to the left, a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# function for drawing bar chart
+draw_barchart <- function(df=NULL, name="sample", score=3.8, lessthan="scored less\nthan you", morethan="scored more\nthan you", incrmt=10) {
+  
+  # category in which score sits
+  score_cat <- round(score,0)
+  
+  if(is.null(df)) {
+    # sample data if none passed in
+    df <- data.frame(order=c(1,2,3,4,5),
+                     label=c("Very low","Low","Average","High","Very high"),
+                     value=c(90,274,129,173,82),
+                     proportion=c(12,36.6,17.2,23.1,11))
+  }
+  
+  # bar plot vertical
+  fill <- c(rep(bars.fill,5))
+  fill[round(score,0)] <- highlight.fill
+  ymax <- ceiling(max(df$proportion)/incrmt)*incrmt
+  plot <- ggplot() +
+    scale_x_continuous(name=name,breaks=NULL,limits=c(min(df$order)-1.6,max(df$order)+1.6))+
+    scale_y_continuous(name=NULL,breaks=seq(0,ymax+10,by=incrmt),limits=c(-1.5,ymax+10), labels=c(paste(seq(0,ymax,by=incrmt),"%",sep=""), "Percentage of\nrespondents")) +
+    geom_rect(data=df, mapping=aes(xmin=order-0.5,xmax=order+0.5,ymin=0,ymax=proportion),
+              color=bars.color,fill=fill) +
+    theme(panel.grid.major=element_line(color=line.color),axis.ticks=element_line(color=line.color),axis.text.x=element_blank(), aspect.ratio=aspectratio, panel.background=element_rect(fill=panel.bg), panel.border = element_rect(fill = NA, color=panel.bg), plot.background = element_rect(color=panel.bg)) +
+    geom_text(aes(label=paste("<--","less",tolower(name),sep=" ")),x=min(df$order)-0.5, hjust=0.5, y=-1.5, vjust=0.5, size=3) +
+    geom_text(aes(label=paste("more",tolower(name),"-->",sep=" ")),x=max(df$order)+0.5, hjust=0.5, y=-1.5, vjust=0.5, size=3) +
+    geom_text(aes(label=paste("YOU\nARE\nHERE",sep=" ")),x=score_cat, y=df$proportion[round(score,0)]/2, vjust=0.5, size=3.5, fontface="bold")
+  
+  # Add "lessthan" label if score is not in the lowest category
+  if(score_cat > min(df$order)) {
+    xpos <- length(df$order[1:score_cat-1])
+    if (xpos>2) { xpos = mean(df$order[1:score_cat-1]) }
+    else { xpos = score_cat - 1.8 }
+    lessthan.prop <- sum(df$proportion[1:score_cat-1])
+    plot <- plot + geom_label(aes(label=paste("About",paste(round(lessthan.prop,0),"%",sep=""), lessthan, sep=" ")), alpha=0.3,  x=xpos, y=max(df$proportion)*0.6, size=3.5, fill=label.fill, label.size=NA,  label.padding = unit(0.5, "lines"))
+  }
+  
+  # Add "morethan" label if score is not in the highest category
+  if(score_cat < max(df$order)) {
+    xpos <- length(df$order[-(1:score_cat)])
+    if (xpos>2) { xpos = mean(df$order[-(1:score_cat)]) }
+    else { xpos = score_cat + 1.8 }
+    morethan.prop <- sum(df$proportion[-(1:score_cat)])
+    plot <- plot + geom_label(aes(label=paste("About",paste(round(morethan.prop,0),"%",sep=""), morethan, sep=" ")), alpha=0.3, x=xpos, y=max(df$proportion)*0.6, size=3.5, fill=label.fill, label.size=NA,  label.padding = unit(0.5, "lines"))
+  }
+  
+  plot
+  
+}
 
-```{r}
-# code is shown for reference but can be hidden using echo=FALSE
-params$one + params$two + params$three + params$four
+# function for drawing boxplot
+draw_boxplot <- function(df=NULL, name="sample", score=4.5, message="Most = %q1% to %q3%", incrmt=10, unit="hours") {
+  
+  # category in which score sits
+  score_cat <- round(score,0)
+  
+  if(is.null(df)) {
+    # sample data if none passed in
+    df <- data.frame(x = "Sample data", y0 = 1, y25 = 25, y50 = 37, y75 = 42, y100 = 96)
+  }
+  
+  fill <- c(rep(bars.fill,5))
+  fill[round(score,0)] <- highlight.fill
+  ymax <- ceiling(df$y100/incrmt)*incrmt
+  
+  plot <- ggplot() +
+    scale_x_continuous(name=NULL,breaks=NULL,limits=c(-2,4))+
+    scale_y_continuous(name=NULL,breaks=seq(0,ymax,by=incrmt),limits=c(0,ymax), labels=paste(seq(0,ymax,by=incrmt),unit)) +
+    geom_rect(data=df, mapping=aes(xmin=-0.8,xmax=0.8,ymin=y25,ymax=y75), color=bars.color, fill=bars.fill) +
+    geom_errorbar(mapping=aes(x=0, ymin=df$y0, ymax=df$y100), color=bars.fill, width=0.1, size=0.5) +
+    geom_line(mapping=aes(x=c(-0.75,0.75), y=c(df$y50,df$y50)), color=panel.bg, size=1.2) +
+    theme(panel.grid.major=element_line(color=line.color), axis.ticks=element_line(color=line.color), axis.text.x=element_blank(), aspect.ratio=aspectratio, panel.background=element_rect(fill=panel.bg), panel.border = element_rect(fill = NA, color=panel.bg),  plot.background = element_rect(color=panel.bg))
+  
+  # Add point
+  if(score<mean(c(df$y25,df$y75))) {
+    if (score-df$y0 < incrmt) { ypos <- df$y0+0.4*incrmt }
+    else { ypos <- df$y25-0.4*incrmt }
+  }
+  else if (score>=mean(c(df$y25,df$y75))) {
+    if (df$y100 - score < incrmt) { ypos <- df$y100-0.4*incrmt }
+    else { ypos <- df$y75+0.4*incrmt }
+  }
+  plot <- plot +
+    geom_curve(aes(x=0.3,y=ypos,xend=0,yend=score),curvature = 0.25) +
+    geom_text(aes(label="YOU ARE HERE"),x=0.3,y=ypos,hjust=0, vjust=0.5,fontface="bold") +
+    geom_point(aes(x=0,y=score), shape=22, color="#EF6C00", fill=highlight.fill, size=3, stroke=2)
+    
+  
+  # Add label
+  plot <- plot +
+    # geom_segment(aes(xend=1.2,yend=df$y75),x=0.8,y=df$y75,vjust=1) +
+    # geom_segment(aes(xend=1.2,yend=df$y25),x=0.8,y=df$y25,vjust=0) +
+    geom_label(aes(label=gsub("%q1%", df$y25, gsub("%q3%", df$y75, message))), alpha=0.3, x=1.1, hjust=0, y=mean(c(df$y25, df$y75)), vjust=0.5, size=3.5, fill=label.fill, label.size=NA, label.padding = unit(0.5, "lines"), lineheight=1.05) +
+    labs(title = name)
+  
+  plot
+  
+}
+
+```
+#### &nbsp;
+#### CONGRATULATIONS! { #top }  
+
+This is your Personal Report generated as a result of completing the online questionnaire of the Australian Not-for-Profit Workforce Study.
+
+Your report is designed to provide you science-driven insights on your work experience. Findings may be interpreted on their own or compared to national benchmarks, if available.  
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+# Job Satisfaction { #jobsat }
+Job satisfaction describes your contentment with your job. You indicated that your satisfaction with your overall work experience is about `r round(as.numeric(params$jobsat),0)` out of 5. Here is how people like you judge their satisfaction with their job.
+
+```{r job_sat, echo=FALSE, message=FALSE, warning=FALSE}
+dat = data.frame(order=c(1,2), label=c("Range","Benchmark"), ymin=c(0,0), ymax=c(5/5,4.25/5))
+score = data.frame(order=1, label=c("YOU"), ymin=as.numeric(params$jobsat)/5, ymax=as.numeric(params$jobsat)/5)
+
+p1 = ggplot() +
+  geom_rect(data=dat, mapping=aes(fill=order, ymin=ymin, ymax=ymax, xmin=3, xmax=4), fill=c("white","grey"), color=c("grey30","black"), size=rep(0.6,2)) +
+  geom_rect(data=score, mapping=aes(fill=order, ymin=ymin, ymax=ymax, xmin=3, xmax=4), fill="orange", color="orange", size=3) +
+  geom_text(mapping=aes(label="very dissatisfied", x=3.5, y=0), vjust = 1.5, size=3) +
+  geom_text(mapping=aes(label="very satisfied", x=3.5, y=1), vjust = 1.5, size=3) +
+  geom_label(aes(label="YOU", x=2, y=0.5), hjust=0.5, vjust=0.5, size=3.5, label.padding = unit(5, "points"), lineheight=1.5, label.size=NA, fill="orange", fontface="bold") +
+  geom_label(aes(label="OTHERS LIKE YOU", x=1.4, y=0.5), hjust=0.5, vjust=0.5, size=3.5, label.padding = unit(5, "points"), lineheight=1.2, label.size=NA, fill="grey") +
+  coord_polar(theta="y", start = -1.570796) +
+  xlim(c(0, 4)) +  ylim(c(0,2)) +
+  theme(panel.grid=element_blank(), axis.ticks=element_blank(), axis.text=element_blank(), legend.position = "right", panel.background = element_rect(fill = "white", color=NA), plot.margin = rep(unit(0,"points"),4) ) +
+  annotate("text", x = 0, y = 0, vjust = 1.5, label = "Job Satisfaction", size = 4) +
+  labs(title="",x="",y="") +
+  ggsave("test.png", width = 8, height = 8)
+
+plot(0, type = 'n', xlim = c(0,1), ylim = c(-1,0.95), axes = F, xlab = '', ylab = '')
+par(mai=c(0,0,0,0), bty="n", col="white")
+img = readPNG("./test.png", native = TRUE)
+rasterImage(img, xleft = -0.3, xright = 1.2, ybottom = -4, ytop = 1.6)
+
 ```
 
-# Including Plots
+###### *Benchmark values are derived from the Household, Income and Labour Dynamics in Australia (HILDA) Survey: stratified to responses related to people associated with the Not-for-Profit sector.*
+<p>&nbsp;</p>
 
-You can also embed plots, for example:
+##### **UNDERSTAND**
 
-```{r bar_horizontal, echo=FALSE, message=FALSE, warning=FALSE}
+##### Job satisfaction is important. How you think and feel about the various aspects that make up your work experience can affect your efforts and productivity, your well-being and intention to stay, and all this matters also for the mission and impact.
+
+##### Job satisfaction is influenced by many things. For instance, it is the result of how meaningful you perceive what you do for work, how much autonomy and feedback is available to do your job, and how functional and deep the social connections with your supervisor and colleagues are.
+
+##### To make your job more meaningful, to experience a stronger sense of calling, you might seek more beneficiary contact. So if you do your good mainly from an office, you could meet some of the people that ultimately benefit from the work you do. Ask them what difference your service or product makes to them.
+
+##### You can also try to dedicate additional time, energy, or attention to an assigned task that is related to an unanswered calling, or by taking on short-term or temporary tasks that incorporate aspects of your unanswered calling.
+
+##### Also, why not approach your peers and supervisor about more feedback. Have good and regular conversations about what you do well, where you can improve, and how this all fits into the big scheme of things to have more impact. Do this often, be deliberate, and just practice it.
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+# Professional Learning & Development { #learndev }
+Professional Learning & Development describes your engagement with the full spectrum of learning opportunities that can enhance your knowledge, skills, and abilities. Learning experiences take on different forms, they can be more or less formal and informal, deliberate and incidental, integrated and external to your job. Here is your personal profile.
+
+``` {r learn_dev, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Data
+x <- as.numeric(strsplit(params$learndev,"-")[[1]])
+xsat <- sum(x)/(length(x)*5)*100
+xsat_bm <- 55  # to replace with actual benchmark score
+ 
+# Clock plot function
+clock.plot <- function (x, col = colorRampPalette(brewer.pal(6,"BuPu"))(11), ...) {
+  
+  par(mfrow=c(1,2))
+  mcm <- 3
+  layout(matrix(c(1,2),1,2),widths=c(lcm(5.5),lcm(11)), heights=lcm(10))
+  
+  plot(0, type="n", xlim = c(0,6.5), ylim=c(0,115), axes=F, xlab='', ylab='')
+  axis(2,tcl=-0.1, at=seq(0,100,by=20), labels=(c(paste(seq(0,100,by=20),"%",sep=""))), las=1)
+  rect(0.5,0,2.5,xsat_bm,col="grey", border="white", lwd=2)
+  text(1.5,xsat_bm,pos=1,labels="OTHERS\nLIKE\nYOU", cex=0.75, ps=8)
+  rect(2.5,0,4.5,xsat,col="#ffa726", border="white", lwd=2)
+  text(3.5,xsat,pos=1,labels="YOU")
+  lines(x=c(-0.25,5), y=c(0,0))
+  text(2.5,100,labels="Level of\nWork Learning\nEngagement", pos=3)
+  
+  x <- x/5
+  n <- length(x)
+  if(is.null(names(x))) names(x) <- 0:(n-1)
+  m <- 1.1
+  plot(0, type = 'n', xlim = c(-m,m), ylim = c(-m,m), axes = F, xlab = '', ylab = '')
+  a <- pi/2 - 2*pi/200*0:200
+  polygon(cos(a), sin(a), border="grey70")
+  for (i in 1:4) { polygon( i/5*cos(a), i/5*sin(a), border="grey80", lty = 3 ) }
+  v <- .03
+  a <- pi/2 - 2*pi/n*0:n
+  segments( (1+v)*cos(a), (1+v)*sin(a), cos(a), sin(a), col = 'grey70', lty = 1)
+  segments( cos(a), sin(a),0, 0, col = 'grey70', lty = 1 ) 
+  ca <- -2*pi/n*(0:51)/51
+  x.names <- c("Experimenting","eLearning","Knowledge\nSharing","Peer\nLearning","Formal\nLearning","Personal\nDevelopment","Reflection","Professional\nGuidance","Professional\nExposure","Expert\nContent","Feedback")
+  for (i in 1:n) {
+    a <- pi/2 - 2*pi/n*(i-1)
+    b <- pi/2 - 2*pi/n*i
+    
+    polygon( c(0, x[i]*cos(a+ca), 0), c(0, x[i]*sin(a+ca), 0), col=col[i], border="grey80", lwd=1.5)
+    v <- 1.0
+    text(mean(range(v*cos(a+ca))), mean(range(v*sin(a+ca))), x.names[i])
+  }
+}
+par (ps=9,pin=c(14,4),font=2, mai=c(0.1,0.6,0.1,0))
+
+# Use the function on the created data
+clock.plot(x, main = "")
+```
+
+##### **UNDERSTAND**
+
+##### Professional learning and development is important to gain and sustain the knowledge, skills, and abilities that allow you to be effective in your role, for your organisation, and to bring about positive change in the world. So you can meet current and future work demands, consider engaging in the following learning experiences:
+
+##### *Experimenting*: You may make time and space to deliberately search and test new methods and tools to do your work better.
+
+##### *E-Learning*: You may seek out webinars, participate in online discussions and commentaries, and follow experts and key influencers through social media.
+
+##### *Knowledge Sharing*: You may increase the exchange of thoughts and ideas with people in- and outside your organisation to become aware of important trends, tools, and other means.
+
+##### *Peer Learning*: You may collaborate more with your co-workers. They often have something useful to share, and you learn when teaching them. Set shared goals and review the experience.
+
+##### *Formal Learning*: You may seek out training courses, seminars and/or conferences that are highly aligned with your needs. Set your own learning goals and create opportunities to use new skills.
+
+##### *Personal Development*: You may plan your own career, thereby define the necessary pathways, and ultimately establish what professional development opportunities you need when.
+
+##### *Reflection*: You may regularly reflect on your work related thoughts, feelings, and behaviours. Consider what is important to you, and why. Make plans, follow through, revisit.
+
+##### *Professional Guidance*: You may seek out a professional coach or some mentors. The former is an expert to guide you to insights, the latter can share experiences, networks, and resources.
+
+##### *Professional Exposure*: You may engage in job rotation, secondments, shadowing, or internships to expose yourself to new professional relevant experiences.
+
+##### *Expert Content*: You may reading more professional, specialist, or scholarly literature that gives you current and evidence-driven knowledge that you can use to your advantage at work.
+
+##### *Feedback*: You may ask for more constructive feedback about your behaviour and performance at work. Be open, be deliberate, and be specific about what you need. Do it often.
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+# Work Hours { #workhours }
+Work hours describe the volume of time you usually spend in your paid or volunteering role per week. You indicated that per week you usually work `r round(as.numeric(params$wrkhr),0)` hours. Here is how much other people like you work on average.   
+
+```{r work_hours, echo=FALSE, message=FALSE, warning=FALSE}
+# static work hours benchmark from HILDA
+workhours_bm.df <- data.frame(y0 = 1, y25 = 25, y50 = 37, y75 = 42, y100 = 96)
+
+# draw boxplot for work hours
+message = "Most people like you work an average\nof between %q1% to %q3% hours per week."
+draw_boxplot(df=workhours_bm.df, name="Work Hours Per Week", score=params$wrkhr, message = message, incrmt = 10, unit="hours")
+
+```
+
+###### *Benchmark values are derived from the Household, Income and Labour Dynamics in Australia (HILDA) Survey: stratified to responses related to people associated with the Not-for-Profit sector.*
+<p>&nbsp;</p>
+
+##### **UNDERSTAND**
+
+##### Work hours are an important reflection of how many personal resources you give to your organisational role. There is no general rule describing the optimal amount of hours. However, as working hours increase, output typically rises at a decreasing rate. That is, people tend to become less productive by the hour the more they work.
+
+##### Long work hours can increase the risk for obesity, injuries, and errors that may affect clients and colleagues. Individuals whose working hours exceed standard recommendations are more likely to show physiological and psychological health symptoms, and may use alcohol to levels that pose a health risk. 
+
+##### On the contrary, small reductions of working time (e.g., breaks) do not necessarily lead to reduced productivity. And flexible work time can contribute to improvements of about 10 percent in productivity.
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+# Sleep { #sleep }
+Sleep describes states of rest and relatively inhibited sensory and physical activity. You indicated that on a typical workday night you sleep about `r round(as.numeric(params$slp),0)` hours. Here is how much other people like you sleep on average.  
+
+```{r sleep_vol, echo=FALSE, message=FALSE, warning=FALSE}
+# static sleep volume benchmark from HILDA
+sleepvol_bm.df <- data.frame(y0 = 0, y25 = 6, y50 = 7, y75 = 8, y100 = 13)
+
+# draw boxplot for sleep volume
+message = "Most people like you have an average\nof between %q1% to %q3% hours of sleep on\na weekday night."
+draw_boxplot(df=sleepvol_bm.df, name="Average Daily Hours of Sleep (On Weekdays)", score=params$slp, message = message, incrmt = 2, unit="hours")
+
+```
+
+###### *Benchmark values are derived from the Household, Income and Labour Dynamics in Australia (HILDA) Survey: stratified to responses related to people associated with the Not-for-Profit sector.*
+<p>&nbsp;</p>
+
+##### **UNDERSTAND**
+
+##### Sleep is important to restore the immune, nervous, skeletal, and muscular systems. Sleep thus supports processes that are vital to maintain your mood, memory, and cognitive performance. With good sleep you may enjoy a longer, healthier, happier life and maintain your ability to do good work.
+
+##### The need for sleep varies by age. In 2015 the US National Sleep Foundation announced daily sleep recommendations for Adults (18-64) to be 7 to 9 hours, and for Older Adults (65 years and over) to be 7 to 8 hours.
+
+##### Many factors can affect the duration, quality and effect of sleep. Please discuss any issues related to your sleep or health with your General Practitioner.
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+# Work Fatigue { #fatigue }
+Fatigue describes your level of tiredness and reduced functional capacity at the end of most workdays. You indicated that your level of work fatigue is about `r round(as.numeric(params$fatg),0)` out of 5. Here is the average level of fatigue of other people like you.  
+
+```{r fatigue, echo=FALSE, message=FALSE, warning=FALSE}
+# static fatigue benchmark from HILDA
+fatigue_bm.df <- data.frame(y0 = 1, y25 = 2, y50 = 3, y75 = 3, y100 = 5)
+
+# draw boxplot for fatigue
+message = "Most people like you have an average\nfatigue score of between %q1% to %q3%\n(5 = most fatigued)."
+draw_boxplot(df=fatigue_bm.df, name="Level of Fatigue", score=params$fatg, message=message, incrmt = 1, unit="")
+
+```
+
+###### *Benchmark values are derived from the Household, Income and Labour Dynamics in Australia (HILDA) Survey: stratified to responses related to people associated with the Not-for-Profit sector.*
+<p>&nbsp;</p>
+
+##### **UNDERSTAND**
+
+##### Work Fatigue is an important concept. People who are frequently physically, mentally, and/or emotionally tired show reduced functional capacity. As a result, people are prone to making more errors, miss scheduled work, or empathise less with clients or co-workers. Extreme levels of fatigue over prolonged periods have been associated with heightened risk of substance abuse and burnout. 
+
+##### Fatigue can have many possible causes and accompanies many different conditions. For instance, the lack to control job demands can deplete your energetic resources. To combat fatigue, you may consider to address long work hours, prolonged periods of physical or mental activity, insufficient break times, inadequate rest or sleep, intense physical activity, unnatural postures, excessive stress, lack of social support, or a combination of the above.
+
+##### Many factors can affect the perception and intensity of fatigue. Please discuss any issues related to your fatigue levels or health with your General Practitioner.
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+# Job Autonomy { #jobautonomy }
+Job autonomy describes your level of freedom, independence, and discretion to schedule work, make decisions, and choose the methods to perform tasks. You indicated that your level of job autonomy is about `r round(as.numeric(params$jobauto),0)` out of 5. Here is the average level of job autonomy for people like you.  
+
+```{r job_auto, echo=FALSE, message=FALSE, warning=FALSE}
+# static job autonomy benchmark from HILDA
+jobauto_bm.df <- data.frame(order=c(1,2,3,4,5),
+                         label=c("Very low","Low","Average","High","Very high"),
+                         value=c(26,190,159,362,51),
+                         proportion=c(3.3,24.1,20.2,45.9,6.5))
+
 # bar plot vertical
-bar.plot <- ggplot(external.data, aes(factor(cyl), fill=factor(cyl))) +
-  geom_bar() + scale_fill_manual(values=sample(lfp.palette))
-bar.plot
+lessthan.message = "has less\njob autonomy than you"
+morethan.message = "has more\njob autonomy than you"
+draw_barchart(df=jobauto_bm.df, name="Job Autonomy", score=params$jobauto, lessthan=lessthan.message, morethan=morethan.message)
 ```
 
-```{r bar_vertical, echo=FALSE, message=FALSE, warning=FALSE}
-# bar plot horizontal
-horizontal.bar.plot <- bar.plot + coord_flip()
-horizontal.bar.plot
+###### *Benchmark values are derived from the Household, Income and Labour Dynamics in Australia (HILDA) Survey: stratified to responses related to people associated with the Not-for-Profit sector.*
+<p>&nbsp;</p>
+
+##### **UNDERSTAND**
+
+##### Job autonomy is important as it affects your job satisfaction, work fatigue and engagement at work. The ability to influence what happens when you work can alleviate the challenges of stressful work experiences, and boost your motivation, mood, and productivity.
+
+##### It may be useful to reflect about the degree of job autonomy you already have. You may ascertain how much you can actually decide about what you work on, when and where to do your work, and how to do that work.
+
+##### You may set your own goals, define the end results clearly, and discuss with your supervisor to establish the boundaries of your autonomy on the job. You may also talk to your peers inside and external to your organisation to understand what and how they are going about their job autonomy.
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+# Job Complexity { #jobcomplexity }
+Job complexity describes the degree to which your job requires the use of numerous high-level skills. You indicated that the degree to which your job is complex is about `r round(as.numeric(params$jobcompl),0)` out of 5. Here is the average level of complexity other people like you have in their jobs.  
+
+```{r job_complex, echo=FALSE, message=FALSE, warning=FALSE}
+# static job autonomy benchmark from HILDA
+jobcomplex_bm.df <- data.frame(order=c(1,2,3,4,5),
+                         label=c("Very low","Low","Average","High","Very high"),
+                         value=c(90,274,129,173,82),
+                         proportion=c(12,36.6,17.2,23.1,11))
+
+# bar plot vertical
+lessthan.message = "has less\njob complexity than you"
+morethan.message = "has more\njob complexity than you"
+draw_barchart(df=jobcomplex_bm.df, name="Job Complexity", score=params$jobcompl, lessthan=lessthan.message, morethan=morethan.message)
 ```
 
-```{r pie, echo=FALSE, message=FALSE, warning=FALSE}
-# pie chart
-pie.df <- data.frame(
-  group = c("one", "two", "three", "four", "five"),
-  value = c(params$one, params$two, params$three, params$four, params$five) 
-  )
-pie <- ggplot(pie.df, aes(x="", y=value, fill=group))+
-  geom_bar(width = 1, stat = "identity") +
-  coord_polar("y", start=0) + scale_fill_manual(values=sample(lfp.palette))
-pie
+###### *Benchmark values are derived from the Household, Income and Labour Dynamics in Australia (HILDA) Survey: stratified to responses related to people associated with the Not-for-Profit sector.*
+<p>&nbsp;</p>
+
+##### **UNDERSTAND**
+
+##### Job complexity is becoming increasingly important. Reasonable high job complexity is often considered positively challenging, mentally demanding, and has desirable motivational effects. All of this can boost proactive behaviour, creativity, productivity, and job satisfaction.
+
+##### If job complexity is perceived as too high, your job may demand too much from you. If job complexity is too low, your job may feel boring and repetitive. Job complexity is an opportunity to achieve greater intrinsic rewards.
+
+##### It can be useful to reflect what dominates within your organisation. The processes (driven by compliance or speed), structure (organised as hierarchy or matrix), and culture (formalised routines or agile decision making) affect how you may go about your job complexity.
+
+##### To find the sweet spot, you may consider to increase or delimit the number of roles and tasks you take on, the amount of hierarchy levels you deal with, the variance of stakeholders you communicate with, and the number of funds and reports you are responsible for.
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+# Skill Variety { #skillvariety }
+Skill variety describes the extent to which your job requires you to make use of your various skills. You indicated that the variety of skills your job requires is about `r round(as.numeric(params$jobskvar),0)` out of 5. Here is the average level of skill variety other people like you face in their jobs.  
+
+```{r job_skvar, echo=FALSE, message=FALSE, warning=FALSE}
+# static job autonomy benchmark from HILDA
+jobskvar_bm.df <- data.frame(order=c(1,2,3,4,5),
+                         label=c("Very low","Low","Average","High","Very high"),
+                         value=c(10,40,53,423,222),
+                         proportion=c(1.3,5.3,7.1,56.6,29.7))
+
+# bar plot vertical
+lessthan.message = "has less\njob skill variety\nthan you"
+morethan.message = "has more\njob skill variety\nthan you"
+draw_barchart(df=jobskvar_bm.df, name="Job Skill Variety", score=params$jobskvar, lessthan=lessthan.message, morethan=morethan.message)
 ```
 
-```{r dot, echo=FALSE, message=FALSE, warning=FALSE}
-# dot plot
-dot.plot <- ggplot(external.data, aes(x = factor(vs), fill = factor(cyl), y = mpg)) +
-  geom_dotplot(binaxis = "y", stackdir = "center", position = "dodge") +
-  scale_fill_manual(values=sample(lfp.palette))
-dot.plot
-```
+###### *Benchmark values are derived from the Household, Income and Labour Dynamics in Australia (HILDA) Survey: stratified to responses related to people associated with the Not-for-Profit sector.*
+<p>&nbsp;</p>
 
-```{r scatter, echo=FALSE, message=FALSE, warning=FALSE}
-# 2d Scatterplot which highlights requester case (x y coordinates from URL)
-new.point <- data.frame(mpg=params$three,
-                        disp=params$four)
-scatterplot <- ggplot(external.data, aes(mpg, disp)) + geom_point(size=1) + 
-  geom_point(data=new.point, colour=sample(lfp.palette,1)) +
-  geom_text(data=new.point, label="You", vjust=2)
-scatterplot
-```
+##### **UNDERSTAND**
+
+##### Skill variety on the job is important because as you use your multiple skills, you experience your work as positively challenging and thereby become more engaged in serving the purpose. It is important to distinguish skill variety (your different skills you use) from task variety (the different things you do).
+
+##### To make your work experience more interesting, seek for ways by which you can use more of your different skills. You may also increase gratification by emphasising your talents which can compensate for domains in which your skills are not so developed.
+
+##### You may begin by taking stock of all your accumulated knowledge, skills, and abilities -- from education, profession, and life. Consider what you are really good in and where in your organisation this may be of use. Discuss ideas with your peers and supervisor.
+
+##### To find the sweet spot, you may consider to increase or delimit the number of roles and tasks you take on, the amount of hierarchy levels you deal with, the variance of stakeholders you communicate with, and the number of funds and reports you are responsible for.
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+##### **DISCLAIMER**
+
+##### To preserve privacy this report does not carry a name or any survey data. You may download the report as PDF or send it to an email address you trust. 
+
+##### Considerable effort has been made to ensure the information in your report is accurate. No warranty as to accuracy is given and each person or organisation should not act on the basis of its contents without taking appropriate independent advice.
+
+##### You should make no employment decisions on the basis of this report and without consulting other sources of information. The onus is on you, the user.
+
+##### Use of this report and the information contained herein does not constitute professional or medical advice. No liability is accepted for any decisions made on the basis of the information provided.
+
+#### &nbsp;
+
+***
