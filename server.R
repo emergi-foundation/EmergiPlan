@@ -44,7 +44,18 @@ shinyServer(function(input, output, session) {
   )
   
   observe({
+    if (is.null(input$activate.button))
+      return(NULL)
+    if (input$activate.button==0)
+      return(NULL)
+    logEvent(session=session, url.parameters=reactiveValuesToList(parameters), 
+             event.variables=list(event="activate",notes=input$email))
+  })
+  
+  observe({
     # Take a dependency on input$email.button
+    if (is.null(input$email.button))
+      return(NULL)
     if (input$email.button == 0)
       return(NULL)
     # Use isolate() to avoid dependency on input$email.button

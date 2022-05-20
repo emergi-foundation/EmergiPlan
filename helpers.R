@@ -13,7 +13,8 @@ blankIfNull <- function(log.entry){
 }
 
 logEvent <- function(session, url.parameters, event.variables,
-                     log.spreadsheet=gs_key(log.spreadsheet.id)){
+                     # log.spreadsheet=gs_key(log.spreadsheet.id)
+                     log.spreadsheet=log.spreadsheet.id){
   
   if(offline){
     return()
@@ -24,15 +25,16 @@ logEvent <- function(session, url.parameters, event.variables,
   event = blankIfNull(event.variables$event)
   notes = blankIfNull(event.variables$notes)
   time = blankIfNull(Sys.time())
-  log.row = c(time, survey, event, notes, redirect.url)
+  log.row = data.frame(time, survey, event, notes, redirect.url)
   print(log.row)
-  gs_add_row(ss=log.spreadsheet, ws="Log", input=log.row)
+  googlesheets4::sheet_append(ss=log.spreadsheet, data=log.row, sheet="Log")
+  # gs_add_row(ss=log.spreadsheet, ws="Log", input=log.row)
 }
 
 parseURL <- function(query, variable, parameters){
   if (!is.null(query[[variable]])) {
     print(paste0("reassigning ",variable," to be ",query[[variable]]))
-    parameters[[variable]] <- ifelse(variable != "survey", as.numeric(query[[variable]]), query[[variable]])
+    parameters[[variable]] <- query[[variable]] #ifelse(variable != "survey", as.numeric(query[[variable]]), query[[variable]])
   }
   return(parameters)
 }
@@ -49,16 +51,18 @@ parseURL <- function(query, variable, parameters){
 # }
 
 renderMyDocument <- function(variables, mdType, 
-                             log.spreadsheet=gs_key(log.spreadsheet.id)) { #, r_env=parent.frame()
+                             # log.spreadsheet=gs_key(log.spreadsheet.id)
+                             log.spreadsheet=log.spreadsheet.id) { #, r_env=parent.frame()
   if(is.null(variables$survey)){
     print("survey is null")
-    survey.name <- "ExampleReport"
+    survey.name <- "EmergiQuote"
   } else {
     survey.name <- variables$survey
   }
   
   if(!offline){
-    reference.data <- data.frame(gs_read(ss=log.spreadsheet, ws = "Reference"))
+    # reference.data <- data.frame(gs_read(ss=log.spreadsheet, ws = "Reference"))
+    reference.data <- googlesheets4::range_read(ss=log.spreadsheet, sheet="Reference")
     dd <- reference.data[reference.data$Survey==survey.name,c("Parameter","Value")]
     if(nrow(dd)){
       ref.variables <- setNames(dd$Value, paste0("ref.",as.character(dd$Parameter)))

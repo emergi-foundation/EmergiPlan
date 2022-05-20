@@ -51,10 +51,9 @@ install.packages('rematch')
 ```
   5. Authenticate with google to enable logging by running each line of code below one-by-one and following the prompts in the Rstudio console (make sure you login with a google account that has write access to the logging google document)
 ```{r google_oauth, eval=FALSE}
-library(googlesheets)
-token <- gs_auth(cache = FALSE)
-gd_token()
-saveRDS(token, file = "googlesheets_token.rds")
+source("settings.txt")
+library(googlesheets4)
+googlesheets4::gs4_auth(cache=".",email=app.settings$email.username,use_oob=TRUE)
 ```
   6. Test that the application runs locally on your machine by opening server.R and pressing the “Run App” button in the top right corner of the code window. Depending on your settings it will open in a pop-up window, an embedded Rstudio window, or a browser tab. When you are finished, or if you receive an error, remember to press the stop sign to stop the application from running.
   7. Deploy the application to ShinyApps.io by running the file `deployment.R`.

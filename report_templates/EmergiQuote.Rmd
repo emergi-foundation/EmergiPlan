@@ -1,0 +1,186 @@
+---
+title: "Your Emergi Offer"
+author: "Emergi"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+tables: true
+always_allow_html: true
+output:
+  html_document:
+    toc: yes
+    toc_depth: 1
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+  pdf_document:
+    latex_engine: lualatex
+    template: emergi_template.tex
+params:
+  survey: EmergiQuote
+  email_address: "Typical Home"
+  zip_code: "00000"
+  utility: "Duke Energy Progress"
+  last_bill_kWh: 1035
+  bill_period_start: "9/1/2020"
+  bill_period_end: "10/1/2020"
+  has_gas: "No"
+  valid_for_days: 10
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(RColorBrewer)
+library(png)
+library(kableExtra)
+library(tidyverse)
+set.seed(1)
+```
+
+```{r results, include=FALSE, echo=FALSE}
+params$
+
+
+
+
+results <- c()
+results$price=139.29
+results$expected_usage=1065
+results$base_rate=0.14
+results$savings_rate=0.11
+results$escalator=0.02
+results$utility_escalator=0.03
+results$state="NC"
+
+is_other_utility=ifelse(params$utility=="Other",TRUE,FALSE)
+
+is_not_eligible=ifelse(results$state!="NC",TRUE,FALSE)
+is_other_utility=FALSE
+
+is_other_utility=ifelse(is_not_eligible,FALSE,is_other_utility)
+```
+
+
+#### &nbsp;
+#### Your Future With Emergi { #top }
+
+`r if(is_not_eligible){"Thanks for your interest in Emergi! We are not yet serving customers in your area, but we will contact you when service is available for signup. We have included a quote for the typical American home below so that you know what to expect. Please activate your service at any time to be ready to go when solar becomes available to your home."}else{""}`
+
+`r if(is_other_utility){"Thanks for submitting! You will recieve an email confirmation shortly, and we will send you a copy of your quote within a day. We have included a quote for the typical American home below so that you know what to expect. You may activate your service in advance to be ready to go when solar becomes available to your home."}else{""}`
+
+
+**$`r results$price`/month**
+
+This is your personalized offer for 100% solar energy, created using the information you provided, typical usage for your area, and rates from your utility. Details and an explaination are below.
+
+<a target="_blank" href="http://www.google.com/">
+  <button id="activate.button" type="button" class="btn btn-large btn-default action-button">Activate My Service</button>
+</a>
+
+#### &nbsp;
+
+***
+
+#### &nbsp;
+
+```{r quote-table, echo=FALSE, include=TRUE, results="asis"}
+# Set a named vector for dynamic header
+table_title <- paste0("Quote Details for ",as.character(params$email_address))
+
+# create vector with colspan
+myHeader <- c(2)
+
+# set vector names 
+names(myHeader) <- c(table_title)
+
+quote_tibble <- tibble(
+  Labels = c("Zip Code",
+             "Utility",
+             "Date Prepared",
+             "Valid Until",
+             "Services Provided",
+             "Monthly Bill",
+             "Expected Usage",
+             "Base Rate",
+             "Savings Rate",
+             "Escalator"),
+  Values = c(params$zip_code,
+             params$utility,
+             1,
+             1,
+             "Grid Solar<br>Bill Smoothing<br>Rate Optimization",
+             results$price,
+             results$expected_usage,
+             results$base_rate,
+             results$savings_rate,
+             results$escalator
+             )
+)
+
+quote_table <- knitr::kable(quote_tibble,
+                            booktabs=T,
+                            align='c',
+                            escape=FALSE
+               ) %>% 
+  kableExtra::kable_styling() %>% 
+  kableExtra::column_spec(c(2), bold=T) %>% 
+  add_header_above(myHeader)
+  # kableExtra::kable_styling(latex_options = c("striped"), #,"hold_position"
+                            # position="center")
+quote_table
+```
+
+**What does this mean?**
+
+Your monthly cost of $`r results$price` assumes that you will use an average of `r results$expected_usage` kWh per month over the course of each year. Your Emergi escalator of `r results$escalator`% per year is how we account for the gradual rise of utility costs (expected to be `r results$utility_escalator`%/year according to the U.S. Energy Information Administration) as well as inflation.
+
+**What if I use more/less than my expected usage?**
+
+If you use more than your expected monthly usage over the course of the year, Emergi will charge for your additional usage at your base rate of $`r results$base_rate`/kWh. If you use less than your expected monthly usage over the course of the year, you will earn savings at a rate of $`r results$savings_rate`/kWh. Emergi will true up your account annually.
+
+<a target="_blank" href="http://www.google.com/">
+  <button id="activate.button" type="button" class="btn btn-large btn-default action-button">Activate My Service</button>
+</a>
+
+#### The Inputs You Provided
+
+```{r inputs-table, echo=FALSE, include=TRUE, results="asis"}
+# Set a named vector for dynamic header
+table_title <- paste0("Quote Inputs for ",as.character(params$email_address))
+
+# create vector with colspan
+myHeader <- c(2)
+
+# set vector names 
+names(myHeader) <- c(table_title)
+
+inputs_tibble <- tibble(
+  Labels = c("Prepared For",
+             "Zip Code",
+             "Utility",
+             "Last Bill Usage (kWh)",
+             "Last Bill Start Date",
+             "Last Bill End Date",
+             "Use Gas?"
+             ),
+  Values = c(params$email_address,
+             params$zip_code,
+             params$utility,
+             params$last_bill_kWh,
+             params$bill_period_start,
+             params$bill_period_end,
+             params$has_gas
+             )
+)
+
+inputs_table <- knitr::kable(inputs_tibble,
+                            booktabs=T,
+                            align='c',
+                            escape=FALSE
+               ) %>% 
+  kableExtra::kable_styling() %>% 
+  kableExtra::column_spec(c(2), bold=T) %>% 
+  add_header_above(myHeader)
+  # kableExtra::kable_styling(latex_options = c("striped"), #,"hold_position"
+                            # position="center")
+inputs_table
+```
