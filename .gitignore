@@ -13,3 +13,4 @@ rsconnect
 *.log
 *.rds
 report_templates/*.html
+creds
