@@ -12,3 +12,4 @@ rsconnect
 *.pdf
 *.log
 *.rds
+creds

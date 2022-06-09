@@ -1,9 +1,0 @@
-app.settings = list(
-  email.username = "eric.scheier.test",
-  email.password = "_+XXk^3BJxQ=_3eM",
-  shiny.username = "ericscheier",
-  shiny.token = "C3D671BE5C5A8B319CED164E0B5B2A0B",
-  shiny.secret = "v/9YH+m9NKCWgzF6V2cEMM2vcATdaIKzmrNaTmVv",
-  app.name = "QualtricsReports",
-  offline.for.debugging = TRUE
-)
