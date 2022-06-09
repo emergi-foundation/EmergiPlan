@@ -37,7 +37,7 @@ set.seed(1)
 ```
 
 ```{r results, include=FALSE, echo=FALSE}
-params$
+#params$
 
 
 
