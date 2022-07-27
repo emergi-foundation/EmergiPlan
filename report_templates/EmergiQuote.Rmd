@@ -15,8 +15,8 @@ output:
     latex_engine: lualatex
     template: emergi_template.tex
 params:
-  survey: EmergiQuote
-  email_address: "Typical Home"
+  survey: EmergiQuotetree
+  email_address: "ahk@live.unc.edu"
   zip_code: "00000"
   utility: "Duke Energy Progress"
   last_bill_kWh: 1035
@@ -24,6 +24,14 @@ params:
   bill_period_end: "10/1/2020"
   has_gas: "No"
   valid_for_days: 10
+  service_address: "610 Perkins Drive"
+  own_or_rent: "Rent"
+  solar_rate: .15
+  co2e_avoided: 6
+  vegan_equivalents: 5
+  tree_equivalents: 110
+  led_equivalents: 250
+  compost_equivalents: 10000
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -61,6 +69,7 @@ is_other_utility=ifelse(is_not_eligible,FALSE,is_other_utility)
 
 
 #### &nbsp;
+
 #### Your Future With Emergi { #top }
 
 `r if(is_not_eligible){"Thanks for your interest in Emergi! We are not yet serving customers in your area, but we will contact you when service is available for signup. We have included a quote for the typical American home below so that you know what to expect. Please activate your service at any time to be ready to go when solar becomes available to your home."}else{""}`
@@ -87,7 +96,7 @@ This is your personalized offer for 100% solar energy, created using the informa
 table_title <- paste0("Quote Details for ",as.character(params$email_address))
 
 # create vector with colspan
-myHeader <- c(2)
+myHeader <- c(4)
 
 # set vector names 
 names(myHeader) <- c(table_title)
@@ -99,22 +108,51 @@ quote_tibble <- tibble(
              "Valid Until",
              "Services Provided",
              "Monthly Bill",
+             "Solar Rate",
              "Expected Usage",
              "Base Rate",
              "Savings Rate",
-             "Escalator"),
+             "Escalator",
+             "Tonnes CO2e Avoided",
+             "Vegan Equivalents",
+             "Tree Equivalents",
+             "LED Equivalents",
+             "Compost Equivalents"),
   Values = c(params$zip_code,
              params$utility,
              1,
              1,
              "Grid Solar<br>Bill Smoothing<br>Rate Optimization",
              results$price,
+             params$solar_rate,
              results$expected_usage,
              results$base_rate,
              results$savings_rate,
-             results$escalator
-             )
+             results$escalator,
+             params$co2e_avoided,
+             params$vegan_equivalents,
+             params$tree_equivalents,
+             params$led_equivalents,
+             params$compost_equivalents
+             ),
+  Format = c("character (unless used in calculations...)", 
+             "factor(?)",
+             "date (integer)",
+             "date (integer)",
+             "factor(?)",
+             "numeric",
+             "numeric",
+             "numeric (unless consistently rounded in calculations)",
+             "numeric",
+             "numeric",
+             "numeric",
+             "numeric (unless consistently rounded)",
+             "numeric (unless consistently rounded)",
+             "numeric (unless consistently rounded)",
+             "numeric (unless consistently rounded)",
+             "numeric (unless consistently rounded)")
 )
+quote_tibble$shiny_format <- typeof(quote_tibble$Values)
 
 quote_table <- knitr::kable(quote_tibble,
                             booktabs=T,
@@ -148,7 +186,7 @@ If you use more than your expected monthly usage over the course of the year, Em
 table_title <- paste0("Quote Inputs for ",as.character(params$email_address))
 
 # create vector with colspan
-myHeader <- c(2)
+myHeader <- c(3)
 
 # set vector names 
 names(myHeader) <- c(table_title)
@@ -160,7 +198,9 @@ inputs_tibble <- tibble(
              "Last Bill Usage (kWh)",
              "Last Bill Start Date",
              "Last Bill End Date",
-             "Use Gas?"
+             "Use Gas?", 
+             "Service Address", 
+             "Own vs Rent"
              ),
   Values = c(params$email_address,
              params$zip_code,
@@ -168,8 +208,19 @@ inputs_tibble <- tibble(
              params$last_bill_kWh,
              params$bill_period_start,
              params$bill_period_end,
-             params$has_gas
-             )
+             params$has_gas, 
+             params$service_address, 
+             params$own_or_rent
+             ),
+  Format = c("character + whatever symbol we use to bypass the verification process?",
+             "character (unless used in calculations...)",
+             "character",
+             "character",
+             "character",
+             "character",
+             "character",
+             "character",
+             "character")
 )
 
 inputs_table <- knitr::kable(inputs_tibble,
