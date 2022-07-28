@@ -15,8 +15,8 @@ output:
     latex_engine: lualatex
     template: emergi_template.tex
 params:
-  survey: EmergiQuote
-  email_address: "Typical Home"
+  survey: EmergiQuotetree
+  email_address: "ahk@live.unc.edu"
   zip_code: "00000"
   utility: "Duke Energy Progress"
   last_bill_kWh: 1035
@@ -24,6 +24,14 @@ params:
   bill_period_end: "10/1/2020"
   has_gas: "No"
   valid_for_days: 10
+  service_address: "610 Perkins Drive"
+  own_or_rent: "Rent"
+  solar_rate: .15
+  co2e_avoided: 6
+  vegan_equivalents: 5
+  tree_equivalents: 110
+  led_equivalents: 250
+  compost_equivalents: 10000
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -59,8 +67,62 @@ is_other_utility=FALSE
 is_other_utility=ifelse(is_not_eligible,FALSE,is_other_utility)
 ```
 
+<!-- Calculating Predicted Energy Usage / Month -->
+<!-- Assuming no gas house, during month of September, Raleigh-Durham area -->
+
+```{r usage_calc, include=FALSE}
+#% usage in each month (no gas)
+jan <- .111
+feb <- .092
+march <-.08
+apr <- .058
+may <-.063
+jun <- .086
+jul <- .104
+aug <- .101
+sep <- .084
+oct <- .061
+nov <-.066
+dec <-.094
+
+#daily_pct for september
+daily_pct_sept <- .0028080
+
+#converting dates from str 
+strDates <- c(params$bill_period_start, params$bill_period_end)
+dates <- as.Date(strDates, "%m/%d/%y")
+
+#calculating total days over billing period
+days_passed <- as.numeric(difftime(dates[2], dates[1], units = "days"))
+
+#calculating energy used per day based on past bill
+avg_use <- (params$last_bill_kWh/(days_passed-1))
+
+#energy used per day divided by daily_pct
+implied_annual <- avg_use/daily_pct_sept
+
+#finding yearly total using months% and avg_use
+yearly_total <- (jan*implied_annual)+(feb*implied_annual)+(march*implied_annual)+(apr*implied_annual)+(may*implied_annual)+(jun*implied_annual)+(jul*implied_annual)+(aug*implied_annual)+(sep*implied_annual)+(oct*implied_annual)+(nov*implied_annual)+(dec*implied_annual)
+
+monthly <- round(yearly_total / 12, 0)
+monthly_ceiling <- round(monthly, -2)
+
+```
+
+**Your Monthly Predicted Usage:**
+**`r monthly` kWh**  
+
+**Rounded Up: `r monthly_ceiling` kWh**  
+
+**Avg Use: `r avg_use` kWh**  
+
+**Days Passed: `r days_passed-1` days**
+
+**Implied Annual: `r implied_annual` kWh**
+
 
 #### &nbsp;
+
 #### Your Future With Emergi { #top }
 
 `r if(is_not_eligible){"Thanks for your interest in Emergi! We are not yet serving customers in your area, but we will contact you when service is available for signup. We have included a quote for the typical American home below so that you know what to expect. Please activate your service at any time to be ready to go when solar becomes available to your home."}else{""}`
@@ -87,7 +149,7 @@ This is your personalized offer for 100% solar energy, created using the informa
 table_title <- paste0("Quote Details for ",as.character(params$email_address))
 
 # create vector with colspan
-myHeader <- c(2)
+myHeader <- c(4)
 
 # set vector names 
 names(myHeader) <- c(table_title)
@@ -99,22 +161,51 @@ quote_tibble <- tibble(
              "Valid Until",
              "Services Provided",
              "Monthly Bill",
+             "Solar Rate",
              "Expected Usage",
              "Base Rate",
              "Savings Rate",
-             "Escalator"),
+             "Escalator",
+             "Tonnes CO2e Avoided",
+             "Vegan Equivalents",
+             "Tree Equivalents",
+             "LED Equivalents",
+             "Compost Equivalents"),
   Values = c(params$zip_code,
              params$utility,
              1,
              1,
              "Grid Solar<br>Bill Smoothing<br>Rate Optimization",
              results$price,
+             params$solar_rate,
              results$expected_usage,
              results$base_rate,
              results$savings_rate,
-             results$escalator
-             )
+             results$escalator,
+             params$co2e_avoided,
+             params$vegan_equivalents,
+             params$tree_equivalents,
+             params$led_equivalents,
+             params$compost_equivalents
+             ),
+  Format = c("character (unless used in calculations...)", 
+             "factor(?)",
+             "date (integer)",
+             "date (integer)",
+             "factor(?)",
+             "numeric",
+             "numeric",
+             "numeric (unless consistently rounded in calculations)",
+             "numeric",
+             "numeric",
+             "numeric",
+             "numeric (unless consistently rounded)",
+             "numeric (unless consistently rounded)",
+             "numeric (unless consistently rounded)",
+             "numeric (unless consistently rounded)",
+             "numeric (unless consistently rounded)")
 )
+quote_tibble$shiny_format <- typeof(quote_tibble$Values)
 
 quote_table <- knitr::kable(quote_tibble,
                             booktabs=T,
@@ -148,7 +239,7 @@ If you use more than your expected monthly usage over the course of the year, Em
 table_title <- paste0("Quote Inputs for ",as.character(params$email_address))
 
 # create vector with colspan
-myHeader <- c(2)
+myHeader <- c(3)
 
 # set vector names 
 names(myHeader) <- c(table_title)
@@ -160,7 +251,9 @@ inputs_tibble <- tibble(
              "Last Bill Usage (kWh)",
              "Last Bill Start Date",
              "Last Bill End Date",
-             "Use Gas?"
+             "Use Gas?", 
+             "Service Address", 
+             "Own vs Rent"
              ),
   Values = c(params$email_address,
              params$zip_code,
@@ -168,8 +261,19 @@ inputs_tibble <- tibble(
              params$last_bill_kWh,
              params$bill_period_start,
              params$bill_period_end,
-             params$has_gas
-             )
+             params$has_gas, 
+             params$service_address, 
+             params$own_or_rent
+             ),
+  Format = c("character + whatever symbol we use to bypass the verification process?",
+             "character (unless used in calculations...)",
+             "character",
+             "character",
+             "character",
+             "character",
+             "character",
+             "character",
+             "character")
 )
 
 inputs_table <- knitr::kable(inputs_tibble,
