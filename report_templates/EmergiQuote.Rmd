@@ -67,6 +67,59 @@ is_other_utility=FALSE
 is_other_utility=ifelse(is_not_eligible,FALSE,is_other_utility)
 ```
 
+<!-- Calculating Predicted Energy Usage / Month -->
+<!-- Assuming no gas house, during month of September, Raleigh-Durham area -->
+
+```{r usage_calc, include=FALSE}
+#% usage in each month (no gas)
+jan <- .111
+feb <- .092
+march <-.08
+apr <- .058
+may <-.063
+jun <- .086
+jul <- .104
+aug <- .101
+sep <- .084
+oct <- .061
+nov <-.066
+dec <-.094
+
+#daily_pct for september
+daily_pct_sept <- .0028080
+
+#converting dates from str 
+strDates <- c(params$bill_period_start, params$bill_period_end)
+dates <- as.Date(strDates, "%m/%d/%y")
+
+#calculating total days over billing period
+days_passed <- as.numeric(difftime(dates[2], dates[1], units = "days"))
+
+#calculating energy used per day based on past bill
+avg_use <- (params$last_bill_kWh/(days_passed-1))
+
+#energy used per day divided by daily_pct
+implied_annual <- avg_use/daily_pct_sept
+
+#finding yearly total using months% and avg_use
+yearly_total <- (jan*implied_annual)+(feb*implied_annual)+(march*implied_annual)+(apr*implied_annual)+(may*implied_annual)+(jun*implied_annual)+(jul*implied_annual)+(aug*implied_annual)+(sep*implied_annual)+(oct*implied_annual)+(nov*implied_annual)+(dec*implied_annual)
+
+monthly <- round(yearly_total / 12, 0)
+monthly_ceiling <- round(monthly, -2)
+
+```
+
+**Your Monthly Predicted Usage:**
+**`r monthly` kWh**  
+
+**Rounded Up: `r monthly_ceiling` kWh**  
+
+**Avg Use: `r avg_use` kWh**  
+
+**Days Passed: `r days_passed-1` days**
+
+**Implied Annual: `r implied_annual` kWh**
+
 
 #### &nbsp;
 

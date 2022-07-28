@@ -13,12 +13,16 @@ p, table  { margin: 0 0 15px;}
 .top-banner { background-color: #4d4d4d; height: 125px; width:1450px; margin-left: -20px; position: absolute;}
 .top-banner h1 { font-size: 48px;  margin: 0px 10px 10px 20px; padding-bottom: 30px; padding-top: 30px; padding-left: 10px; position: absolute;}
 
+.energy-usage-box {background-color: #228b22; border: #4d4d4d; height: 150px; width: auto}
+
+.shiny-box {background-color: #FFFFFF; margin-left: 0px; height: 300px; width: 500px; padding: 100px;}
+
 
 .top-banner input:focus, .top-banner input:active { outline: none !important; border-color: none; }
-.top-banner button, .top-banner button:focus { background: #228b22; color: #fff; font-weight: normal; font-size: 14px; height: 50px; width: 100%; border: none; outline: none !important;}
-.top-banner button:hover { background: #; color: #fff; }
-.top-banner button:active:focus { outline: none !important; background: #; color: #fff; }
-.top-banner button a { color: #fff; }
+.top-banner button, .top-banner button:focus { background: #228b22; color: #4d4d4d; font-weight: normal; font-size: 14px; height: 50px; width: 100%; border: none; outline: none !important;}
+.top-banner button:hover { background: #; color: #4d4d4d; }
+.top-banner button:active:focus { outline: none !important; background: #4d4d4d; color: ##4d4d4d }
+.top-banner button a { color: #4d4d4d; }
 .top-banner button a:hover { text-decoration: none; }
 .top-banner .form-control:focus { box-shadow: none; border-color: #5a595c; }
 .left-navbar ul { list-style-type: none; -webkit-padding-start: 0px; line-height: 1.8;}
