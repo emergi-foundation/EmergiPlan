@@ -34,7 +34,13 @@ logEvent <- function(session, url.parameters, event.variables,
 parseURL <- function(query, variable, parameters){
   if (!is.null(query[[variable]])) {
     print(paste0("reassigning ",variable," to be ",query[[variable]]))
-    parameters[[variable]] <- query[[variable]] #ifelse(variable != "survey", as.numeric(query[[variable]]), query[[variable]])
+    parameters[[variable]] <- ifelse(variable == "email_address", 
+                                     stringr::str_replace_all(string = query[[variable]],
+                                                          pattern = "@",
+                                                          replacement = "\\\\@")
+                                     , query[[variable]]
+                                     )
+    print(paste0("reassigned ",variable," to be ",parameters[[variable]]))
   }
   return(parameters)
 }
