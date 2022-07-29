@@ -45,11 +45,6 @@ set.seed(1)
 ```
 
 ```{r results, include=FALSE, echo=FALSE}
-#params$
-
-
-
-
 results <- c()
 results$price=139.29
 results$expected_usage=1065
@@ -71,41 +66,59 @@ is_other_utility=ifelse(is_not_eligible,FALSE,is_other_utility)
 <!-- Assuming no gas house, during month of September, Raleigh-Durham area -->
 
 ```{r usage_calc, include=FALSE}
+# aggregate from hourly % curve estimate
 #% usage in each month (no gas)
-jan <- .111
-feb <- .092
-march <-.08
-apr <- .058
-may <-.063
-jun <- .086
-jul <- .104
-aug <- .101
-sep <- .084
-oct <- .061
-nov <-.066
-dec <-.094
+monthly_pcts <- list(
+"jan"=.111,
+"feb"=.092,
+"march"=.08,
+"apr"=.058,
+"may"=.063,
+"jun"=.086,
+"jul"=.104,
+"aug"=.101,
+"sep"=.084,
+"oct"=.061,
+"nov"=.066,
+"dec"=.094)
 
-#daily_pct for september
-daily_pct_sept <- .0028080
+# month_num, month_pct, daily_pct, num_days
+monthly_stats <- data.frame(
+  month_num=1:12,
+  monthly_pct=unlist(monthly_pcts)
+)
+
+monthly_stats$num_days <- 365.25/12 # improve this to be exact using lubridate
+
+monthly_stats$daily_pct <- monthly_stats$monthly_pct / monthly_stats$num_days
 
 #converting dates from str 
 strDates <- c(params$bill_period_start, params$bill_period_end)
 dates <- as.Date(strDates, "%m/%d/%y")
 
+estimate_from_month <- lubridate::month(dates[1])
+
+stats_for_billing_period <- monthly_stats[estimate_from_month,]
+
 #calculating total days over billing period
+# lubridate
+# tidyverse
 days_passed <- as.numeric(difftime(dates[2], dates[1], units = "days"))
 
 #calculating energy used per day based on past bill
-avg_use <- (params$last_bill_kWh/(days_passed-1))
+avg_daily_use <- (as.numeric(params$last_bill_kWh)/(days_passed-1))
 
 #energy used per day divided by daily_pct
-implied_annual <- avg_use/daily_pct_sept
+implied_annual <- as.numeric(avg_daily_use / stats_for_billing_period$daily_pct)
 
 #finding yearly total using months% and avg_use
-yearly_total <- (jan*implied_annual)+(feb*implied_annual)+(march*implied_annual)+(apr*implied_annual)+(may*implied_annual)+(jun*implied_annual)+(jul*implied_annual)+(aug*implied_annual)+(sep*implied_annual)+(oct*implied_annual)+(nov*implied_annual)+(dec*implied_annual)
+## convert to a column of monthly_stats with monthly totals
+# yearly_total <- (jan*implied_annual)+(feb*implied_annual)+(march*implied_annual)+(apr*implied_annual)+(may*implied_annual)+(jun*implied_annual)+(jul*implied_annual)+(aug*implied_annual)+(sep*implied_annual)+(oct*implied_annual)+(nov*implied_annual)+(dec*implied_annual)
+monthly_stats$expected_usage <- monthly_stats$monthly_pct * implied_annual
 
-monthly <- round(yearly_total / 12, 0)
-monthly_ceiling <- round(monthly, -2)
+monthly <- round(implied_annual / 12, 0)
+monthly_ceiling <- 100*ceiling(monthly/100)
+
 
 ```
 
@@ -114,7 +127,7 @@ monthly_ceiling <- round(monthly, -2)
 
 **Rounded Up: `r monthly_ceiling` kWh**  
 
-**Avg Use: `r avg_use` kWh**  
+**Average Daily Use: `r avg_daily_use` kWh**  
 
 **Days Passed: `r days_passed-1` days**
 
@@ -146,7 +159,7 @@ This is your personalized offer for 100% solar energy, created using the informa
 
 ```{r quote-table, echo=FALSE, include=TRUE, results="asis"}
 # Set a named vector for dynamic header
-table_title <- paste0("Quote Details for ",as.character(params$email_address))
+table_title <- paste0("Quote Details for ",params$email_address)
 
 # create vector with colspan
 myHeader <- c(4)
@@ -236,7 +249,7 @@ If you use more than your expected monthly usage over the course of the year, Em
 
 ```{r inputs-table, echo=FALSE, include=TRUE, results="asis"}
 # Set a named vector for dynamic header
-table_title <- paste0("Quote Inputs for ",as.character(params$email_address))
+table_title <- paste0("Quote Inputs for ",params$email_address)
 
 # create vector with colspan
 myHeader <- c(3)
